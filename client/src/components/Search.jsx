@@ -29,7 +29,7 @@ const Search = () => {
 
   return (
     <div className="w-full flex justify-center items-center" style={{ minHeight: '80px' }}>
-      <div className={`flex items-center w-full max-w-xl border border-green-600 bg-white overflow-hidden${isSearchPage ? ' shadow-md' : ''}`}> 
+      <div className={`flex items-center w-full max-w-xl border border-gray-200 bg-gray-50 overflow-hidden${isSearchPage ? ' shadow-md' : ''}`} style={{ borderRadius: '2rem' }}>
         {isMobile && isSearchPage ? (
           <Link
             to="/"
@@ -47,8 +47,8 @@ const Search = () => {
               placeholder="Search for items..."
               defaultValue={searchText}
               onChange={handleOnChange}
-              className="w-full h-12 px-6 text-lg outline-none bg-transparent"
-              style={{ border: 'none', boxShadow: 'none', borderRadius: 0 }}
+              className="w-full h-12 px-6 text-lg outline-none bg-transparent text-gray-500"
+              style={{ border: 'none', boxShadow: 'none', borderRadius: '2rem' }}
             />
           ) : (
             <div
@@ -74,7 +74,7 @@ const Search = () => {
           )}
         </div>
 
-        <button className="bg-green-700 hover:bg-green-800 px-6 h-12 flex items-center justify-center text-white" style={{ borderRadius: 0 }}>
+        <button className="bg-transparent px-6 h-12 flex items-center justify-center text-gray-400" style={{ borderRadius: '2rem' }}>
           <IoSearch size={24} />
         </button>
       </div>

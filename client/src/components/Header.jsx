@@ -8,7 +8,6 @@ import { BsCart4 } from "react-icons/bs";
 import { useSelector } from 'react-redux';
 import { GoTriangleDown, GoTriangleUp } from "react-icons/go";
 import UserMenu from './UserMenu';
-import { DisplayPriceInRupees } from '../utils/DisplayPriceInRupees';
 import { useGlobalContext } from '../provider/GlobalProvider';
 import DisplayCartItem from './DisplayCartItem';
 
@@ -19,8 +18,7 @@ const Header = () => {
     const navigate = useNavigate();
     const user = useSelector((state) => state?.user);
     const [openUserMenu, setOpenUserMenu] = useState(false);
-    const cartItem = useSelector(state => state.cartItem.cart);
-    const { totalPrice, totalQty } = useGlobalContext();
+    const { totalQty } = useGlobalContext();
     const [openCartSection, setOpenCartSection] = useState(false);
 
     const redirectToLoginPage = () => {
@@ -39,16 +37,14 @@ const Header = () => {
         navigate("/user");
     };
 
-    // The return statement starts here
     return (
-        // NEW: Added an opening Fragment tag to wrap everything
         <>
             <header className='h-24 lg:h-20 lg:shadow-md sticky top-0 z-40 flex flex-col justify-center gap-1 bg-white'>
                 {
                     !(isSearchPage && isMobile) && (
                         <div className='w-full max-w-screen-2xl mx-auto flex items-center px-6 justify-between'>
 
-                            {/**logo */}
+                            {/* Logo */}
                             <div className='h-full'>
                                 <Link to={"/"} className='h-full flex justify-center items-center'>
                                     <img
@@ -64,24 +60,56 @@ const Header = () => {
                                 </Link>
                             </div>
 
-                            {/**Search */}
-                            <div className='hidden lg:block flex-1 mx-8 max-w-lg'>
-                                <Search />
+                            {/* Nav + Search */}
+                            <div className="flex items-center gap-8 flex-1 max-w-4xl justify-center mx-8">
+                                {/* Navigation */}
+                                <nav className="hidden lg:flex items-center gap-8">
+                                    <Link to="/" className="text-base font-semibold text-gray-800 hover:text-green-700">Home</Link>
+                                   <Link to="/shop" className="text-base font-semibold text-gray-800 hover:text-green-700">Shop</Link>
+
+                                 <Link to="/contact-us" className="text-base font-semibold text-gray-800 hover:text-green-700">Contact Us</Link>
+
+                                    <Link to="/about-us" className="text-base font-semibold text-gray-800 hover:text-green-700">About Us</Link>
+                                </nav>
+
+                                {/* Search Bar */}
+                                <div className="hidden lg:block" style={{ minWidth: '320px', maxWidth: '420px', width: '100%' }}>
+                                    <Search />
+                                </div>
                             </div>
 
-                            {/**login and my cart */}
+                            {/* Right-side icons */}
                             <div className=''>
                                 <button className='text-neutral-600 lg:hidden' onClick={handleMobileUser}>
                                     <FaRegCircleUser size={26} />
                                 </button>
 
-                                <div className='hidden lg:flex  items-center gap-10'>
+                                <div className='hidden lg:flex items-center gap-6'>
+
+                                    {/* Cart Icon Only */}
+                                    <button
+                                        onClick={() => setOpenCartSection(true)}
+                                        className="relative p-2 text-gray-700 hover:text-green-600 transition-colors"
+                                        aria-label="Shopping Cart"
+                                    >
+                                        <BsCart4 size={28} />
+                                        {totalQty > 0 && (
+                                            <span className="absolute -top-1 -right-1 bg-green-700 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center font-bold">
+                                                {totalQty}
+                                            </span>
+                                        )}
+                                    </button>
+
+                                    {/* Login or Account */}
                                     {
                                         user?._id ? (
                                             <div className='relative'>
-                                                <div onClick={() => setOpenUserMenu(preve => !preve)} className='flex select-none items-center gap-1 cursor-pointer'>
-                                                    <p>Account</p>
-                                                    {openUserMenu ? <GoTriangleUp size={25} /> : <GoTriangleDown size={25} />}
+                                                <div
+                                                    onClick={() => setOpenUserMenu(prev => !prev)}
+                                                    className='flex select-none items-center gap-2 cursor-pointer px-5 py-2 bg-green-700 text-white rounded-full font-semibold hover:bg-green-800 transition'
+                                                >
+                                                    <span>Account</span>
+                                                    {openUserMenu ? <GoTriangleUp size={20} /> : <GoTriangleDown size={20} />}
                                                 </div>
                                                 {openUserMenu && (
                                                     <div className='absolute right-0 top-12'>
@@ -92,46 +120,34 @@ const Header = () => {
                                                 )}
                                             </div>
                                         ) : (
-                                            <button onClick={redirectToLoginPage} className='text-lg px-2'>Login</button>
+                                            <button
+                                                onClick={redirectToLoginPage}
+                                                className='px-5 py-2 bg-green-700 text-white rounded-full font-semibold hover:bg-green-800 transition'
+                                            >
+                                                Login
+                                            </button>
                                         )
                                     }
-                                    <button onClick={() => setOpenCartSection(true)} className='flex items-center gap-2 bg-green-800 hover:bg-green-700 px-3 py-2 rounded text-white'>
-                                        <div className='animate-bounce'>
-                                            <BsCart4 size={26} />
-                                        </div>
-                                        <div className='font-semibold text-sm'>
-                                            {cartItem[0] ? (
-                                                <div>
-                                                    <p>{totalQty} Items</p>
-                                                    <p>{DisplayPriceInRupees(totalPrice)}</p>
-                                                </div>
-                                            ) : (
-                                                <p>My Cart</p>
-                                            )}
-                                        </div>
-                                    </button>
                                 </div>
                             </div>
                         </div>
                     )
                 }
-            </header> {/* The <header> tag ends here, but it's now inside the Fragment */}
+            </header>
 
-            {/* This div is now a sibling inside the Fragment, which is correct */}
+            {/* Mobile Search */}
             <div className='container mx-auto px-2 lg:hidden'>
                 <Search />
             </div>
 
-            {/* This block is also a sibling inside the Fragment, which is correct */}
+            {/* Cart Sidebar */}
             {
                 openCartSection && (
                     <DisplayCartItem close={() => setOpenCartSection(false)} />
                 )
             }
-        </> // NEW: Added a closing Fragment tag
+        </>
     );
 };
 
 export default Header;
-
-

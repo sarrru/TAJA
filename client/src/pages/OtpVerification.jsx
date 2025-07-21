@@ -8,50 +8,51 @@ import AxiosToastError from '../utils/AxiosToastError';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 const OtpVerification = () => {
-    const [data, setData] = useState(["","","","","",""])
+    const [data, setData] = useState(["", "", "", "", "", ""])
     const navigate = useNavigate()
     const inputRef = useRef([])
     const location = useLocation()
 
-    console.log("location",location)
+    console.log("location", location)
 
-    useEffect(()=>{
-        if(!location?.state?.email){
+    useEffect(() => {
+        if (!location?.state?.email) {
             navigate("/forgot-password")
         }
-    },[])
+    }, [])
 
     const valideValue = data.every(el => el)
 
-    const handleSubmit = async(e)=>{
+    const handleSubmit = async (e) => {
         e.preventDefault()
 
         try {
             const response = await Axios({
                 ...SummaryApi.forgot_password_otp_verification,
-                data : {
-                    otp : data.join(""),
-                    email : location?.state?.email
-                }
+                data: {
+                    otp: data.join(""),
+                    email: location?.state?.email
+                },
+                withCredentials: true
             })
-            
-            if(response.data.error){
+
+            if (response.data.error) {
                 toast.error(response.data.message)
             }
 
-            if(response.data.success){
+            if (response.data.success) {
                 toast.success(response.data.message)
-                setData(["","","","","",""])
-                navigate("/reset-password",{
-                    state : {
-                        data : response.data,
-                        email : location?.state?.email
+                setData(["", "", "", "", "", ""])
+                navigate("/reset-password", {
+                    state: {
+                        data: response.data,
+                        email: location?.state?.email
                     }
                 })
             }
 
         } catch (error) {
-            console.log('error',error)
+            console.log('error', error)
             AxiosToastError(error)
         }
 
@@ -68,27 +69,27 @@ const OtpVerification = () => {
                         <label htmlFor='otp'>Enter Your OTP :</label>
                         <div className='flex items-center gap-2 justify-between mt-3'>
                             {
-                                data.map((element,index)=>{
-                                    return(
+                                data.map((element, index) => {
+                                    return (
                                         <input
-                                            key={"otp"+index}
+                                            key={"otp" + index}
                                             type='text'
                                             id='otp'
-                                            ref={(ref)=>{
+                                            ref={(ref) => {
                                                 inputRef.current[index] = ref
-                                                return ref 
+                                                return ref
                                             }}
                                             value={data[index]}
-                                            onChange={(e)=>{
-                                                const value =  e.target.value
-                                                console.log("value",value)
+                                            onChange={(e) => {
+                                                const value = e.target.value
+                                                console.log("value", value)
 
                                                 const newData = [...data]
                                                 newData[index] = value
                                                 setData(newData)
 
-                                                if(value && index < 5){
-                                                    inputRef.current[index+1].focus()
+                                                if (value && index < 5) {
+                                                    inputRef.current[index + 1].focus()
                                                 }
 
 
@@ -100,10 +101,10 @@ const OtpVerification = () => {
                                 })
                             }
                         </div>
-                        
+
                     </div>
-             
-                    <button disabled={!valideValue} className={` ${valideValue ? "bg-green-800 hover:bg-green-700" : "bg-gray-500" }    text-white py-2 rounded font-semibold my-3 tracking-wide`}>Verify OTP</button>
+
+                    <button disabled={!valideValue} className={` ${valideValue ? "bg-green-800 hover:bg-green-700" : "bg-gray-500"}    text-white py-2 rounded font-semibold my-3 tracking-wide`}>Verify OTP</button>
 
                 </form>
 

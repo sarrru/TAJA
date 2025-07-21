@@ -30,4 +30,4 @@ const ScrollToTopButton = () => {
   );
 };
 
-export default ScrollToTopButton;
+export default ScrollToTopButton; //scroll to top button component

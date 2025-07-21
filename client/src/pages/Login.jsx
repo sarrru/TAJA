@@ -1,6 +1,5 @@
-import React, { useState } from 'react'
-import { FaRegEyeSlash } from "react-icons/fa6";
-import { FaRegEye } from "react-icons/fa6";
+import React, { useState } from 'react';
+import { FaRegEyeSlash, FaRegEye } from 'react-icons/fa6';
 import toast from 'react-hot-toast';
 import Axios from '../utils/Axios';
 import SummaryApi from '../common/SummaryApi';
@@ -9,118 +8,140 @@ import { Link, useNavigate } from 'react-router-dom';
 import fetchUserDetails from '../utils/fetchUserDetails';
 import { useDispatch } from 'react-redux';
 import { setUserDetails } from '../store/userSlice';
+import logo from '../assets/taja.png';
 
 const Login = () => {
-    const [data, setData] = useState({
-        email: "",
-        password: "",
-    })
-    const [showPassword, setShowPassword] = useState(false)
-    const navigate = useNavigate()
-    const dispatch = useDispatch()
+  const [data, setData] = useState({ email: '', password: '' });
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-    const handleChange = (e) => {
-        const { name, value } = e.target
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setData(prev => ({ ...prev, [name]: value }));
+  };
 
-        setData((preve) => {
-            return {
-                ...preve,
-                [name]: value
-            }
-        })
-    }
+  const validValue = Object.values(data).every(el => el);
 
-    const valideValue = Object.values(data).every(el => el)
+  const handleSubmit = async e => {
+    e.preventDefault();
+    try {
+      const response = await Axios({ ...SummaryApi.login, data });
 
+      if (response.data.error) {
+        toast.error(response.data.message);
+        return;
+      }
 
-    const handleSubmit = async(e)=>{
-        e.preventDefault()
+      if (response.data.success) {
+        toast.success(response.data.message);
 
-        try {
-            const response = await Axios({
-                ...SummaryApi.login,
-                data : data
-            })
-            
-            if(response.data.error){
-                toast.error(response.data.message)
-            }
+        // ✅ Correct casing: accessToken, not accesstoken
+        const { accessToken, refreshToken } = response.data.data;
 
-            if(response.data.success){
-                toast.success(response.data.message)
-                localStorage.setItem('accesstoken',response.data.data.accesstoken)
-                localStorage.setItem('refreshToken',response.data.data.refreshToken)
+        // ✅ Save tokens properly
+        localStorage.setItem('accesstoken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
 
-                const userDetails = await fetchUserDetails()
-                dispatch(setUserDetails(userDetails.data))
-
-                setData({
-                    email : "",
-                    password : "",
-                })
-                navigate("/")
-            }
-
-        } catch (error) {
-            AxiosToastError(error)
+        // ✅ Optional: fetch user immediately
+        const userDetails = await fetchUserDetails();
+        if (userDetails?.data) {
+          dispatch(setUserDetails(userDetails.data));
         }
 
+        // ✅ Clear form and redirect
+        setData({ email: '', password: '' });
+        navigate('/');
 
-
+        // ✅ Optional: reload if needed
+        // window.location.reload();
+      }
+    } catch (error) {
+      AxiosToastError(error);
     }
-    return (
-        <section className='w-full container mx-auto px-2'>
-            <div className='bg-white my-4 w-full max-w-lg mx-auto rounded p-7'>
+  };
 
-                <form className='grid gap-4 py-4' onSubmit={handleSubmit}>
-                    <div className='grid gap-1'>
-                        <label htmlFor='email'>Email :</label>
-                        <input
-                            type='email'
-                            id='email'
-                            className='bg-blue-50 p-2 border rounded outline-none focus:border-primary-200'
-                            name='email'
-                            value={data.email}
-                            onChange={handleChange}
-                            placeholder='Enter your email'
-                        />
-                    </div>
-                    <div className='grid gap-1'>
-                        <label htmlFor='password'>Password :</label>
-                        <div className='bg-blue-50 p-2 border rounded flex items-center focus-within:border-primary-200'>
-                            <input
-                                type={showPassword ? "text" : "password"}
-                                id='password'
-                                className='w-full outline-none'
-                                name='password'
-                                value={data.password}
-                                onChange={handleChange}
-                                placeholder='Enter your password'
-                            />
-                            <div onClick={() => setShowPassword(preve => !preve)} className='cursor-pointer'>
-                                {
-                                    showPassword ? (
-                                        <FaRegEye />
-                                    ) : (
-                                        <FaRegEyeSlash />
-                                    )
-                                }
-                            </div>
-                        </div>
-                        <Link to={"/forgot-password"} className='block ml-auto hover:text-primary-200'>Forgot password ?</Link>
-                    </div>
-    
-                    <button disabled={!valideValue} className={` ${valideValue ? "bg-green-800 hover:bg-green-700" : "bg-gray-500" }    text-white py-2 rounded font-semibold my-3 tracking-wide`}>Login</button>
+  return (
+    <section className="w-full px-4 py-12 bg-white font-sans">
+      <div className="max-w-md mx-auto border rounded-lg shadow-md p-8 bg-white">
+        {/* Logo */}
+        <div className="flex justify-center mb-6">
+          <img src={logo} alt="Logo" className="h-16" />
+        </div>
 
-                </form>
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Email */}
+          <div>
+            <label htmlFor="email" className="block mb-1 font-semibold text-gray-800 text-sm">
+              Email Address*
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Enter your Email"
+              value={data.email}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded bg-gray-50 placeholder-gray-600 text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-600"
+              autoFocus
+              required
+            />
+          </div>
 
-                <p>
-                    Don't have account? <Link to={"/register"} className='font-semibold text-green-700 hover:text-green-800'>Register</Link>
-                </p>
+          {/* Password */}
+          <div>
+            <label htmlFor="password" className="block mb-1 font-semibold text-gray-800 text-sm">
+              Password*
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id="password"
+                name="password"
+                placeholder="Enter your Password"
+                value={data.password}
+                onChange={handleChange}
+                className="w-full px-4 py-2 pr-10 border border-gray-300 rounded bg-gray-50 placeholder-gray-600 text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-600"
+                required
+              />
+              <span
+                onClick={() => setShowPassword(prev => !prev)}
+                className="absolute top-1/2 right-3 transform -translate-y-1/2 cursor-pointer text-gray-500"
+              >
+                {showPassword ? <FaRegEye /> : <FaRegEyeSlash />}
+              </span>
             </div>
-        </section>
-    )
-}
+            <Link
+              to="/forgot-password"
+              className="block text-right text-sm mt-1 text-gray-600 hover:text-green-700"
+            >
+              Forgot Password?
+            </Link>
+          </div>
 
-export default Login
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={!validValue}
+            className={`w-full py-2 rounded font-semibold text-white transition-all ${
+              validValue ? 'bg-green-700 hover:bg-green-800' : 'bg-gray-400 cursor-not-allowed'
+            }`}
+          >
+            Login
+          </button>
+        </form>
 
+        {/* Register Link */}
+        <p className="mt-6 text-center text-sm text-gray-700">
+          Don’t Have an Account?{' '}
+          <Link to="/register" className="text-green-700 font-medium hover:underline">
+            Register
+          </Link>
+        </p>
+      </div>
+    </section>
+  );
+};
+
+export default Login;

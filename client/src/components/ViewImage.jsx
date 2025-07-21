@@ -18,4 +18,4 @@ const ViewImage = ({url,close}) => {
   )
 }
 
-export default ViewImage
+export default ViewImage //this is for view image

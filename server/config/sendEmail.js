@@ -49,11 +49,12 @@ const sendEmail = async ({ sendTo, subject, html }) => {
         console.log("-----------------------------------------");
 
         const { data, error } = await resend.emails.send({
-            from: uniqueFromAddress,
-            to: sendTo,
+            from: 'Taja Support <onboarding@resend.dev>',
+            to: sendTo, // ✅ This line was missing!
             subject: subject,
             html: html,
         });
+
 
         if (error) {
             console.error("Resend API Error:", { error });

@@ -55,28 +55,31 @@ export const addToCartItemController = async(request,response)=>{
     }
 }
 
-export const getCartItemController = async(request,response)=>{
+export const getCartItemController = async (req, res) => {
     try {
-        const userId = request.userId
+        const userId = req.userId;
 
-        const cartItem =  await CartProductModel.find({
-            userId : userId
-        }).populate('productId')
+        const cartItems = await CartProductModel.find({ userId })
+            .populate('productId');
 
-        return response.json({
-            data : cartItem,
-            error : false,
-            success : true
-        })
+        // ✅ Filter out items where productId was not populated (i.e., is null)
+        const validItems = cartItems.filter(item => item.productId !== null);
+
+        return res.json({
+            data: validItems,
+            error: false,
+            success: true
+        });
 
     } catch (error) {
-        return response.status(500).json({
-            message : error.message || error,
-            error : true,
-            success : false
-        })
+        return res.status(500).json({
+            message: error.message || error,
+            error: true,
+            success: false
+        });
     }
-}
+};
+
 
 export const updateCartItemQtyController = async(request,response)=>{
     try {
